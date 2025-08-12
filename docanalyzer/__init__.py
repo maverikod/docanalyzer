@@ -1,23 +1,14 @@
 """
-DocAnalyzer - Document Analysis and Chunking System.
+Document Analyzer Service Package.
 
-A comprehensive system for monitoring file systems, parsing documents,
-and creating semantic chunks for vector storage.
+A service for indexing documents by monitoring directories from configuration
+and adding new documents to the database.
 """
 
 __version__ = "1.0.0"
-__author__ = "Vasily Zdanovskiy"
-__email__ = "vasilyvz@gmail.com"
+__author__ = "Document Analyzer Team"
+__description__ = "Document indexing service with directory monitoring"
 
-from .filters.base import BaseFileFilter, TextBlock, FileStructure
-from .filters.registry import FilterRegistry
+from docanalyzer.main import main
 
-__all__ = [
-    "BaseFileFilter",
-    "TextBlock", 
-    "FileStructure",
-    "FilterRegistry",
-    "__version__",
-    "__author__",
-    "__email__"
-] 
+__all__ = ["main", "__version__"] 

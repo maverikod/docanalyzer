@@ -1,0 +1,50 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8015,
+    "debug": false,
+    "log_level": "INFO"
+  },
+  "logging": {
+    "level": "INFO",
+    "log_dir": "./logs/docanalyzer",
+    "log_file": "docanalyzer.log",
+    "error_log_file": "docanalyzer_error.log",
+    "access_log_file": "docanalyzer_access.log",
+    "max_file_size": "10MB",
+    "backup_count": 5,
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "date_format": "%Y-%m-%d %H:%M:%S",
+    "console_output": true,
+    "file_output": true
+  },
+  "commands": {
+    "auto_discovery": true,
+    "discovery_path": "docanalyzer.commands",
+    "custom_commands_path": null
+  },
+  "file_watcher": {
+    "directories": [
+      "./documents",
+      "./docs"
+    ],
+    "scan_interval": 300,
+    "lock_timeout": 3600,
+    "max_processes": 5
+  },
+  "vector_store": {
+    "base_url": "http://localhost",
+    "port": 8007,
+    "timeout": 30
+  },
+  "chunker": {
+    "base_url": "http://localhost",
+    "port": 8009,
+    "timeout": 30
+  },
+  "embedding": {
+    "base_url": "http://localhost", 
+    "port": 8001,
+    "timeout": 30
+  }
+} 

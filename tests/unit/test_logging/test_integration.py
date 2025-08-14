@@ -437,24 +437,24 @@ class TestImportErrorFallback:
     def test_import_error_fallback_values(self):
         """Test fallback values when mcp_proxy_adapter is not available."""
         # This test verifies that fallback values are properly set
-        import docanalyzer.logging.integration
+        from docanalyzer.logging import integration
         
         # Verify fallback values are available
-        assert hasattr(docanalyzer.logging.integration, 'Logger')
-        assert hasattr(docanalyzer.logging.integration, 'LogLevel')
-        assert hasattr(docanalyzer.logging.integration, 'LogFormatter')
-        assert hasattr(docanalyzer.logging.integration, 'get_setting')
+        assert hasattr(integration, 'Logger')
+        assert hasattr(integration, 'LogLevel')
+        assert hasattr(integration, 'LogFormatter')
+        assert hasattr(integration, 'get_setting')
         
         # Verify get_setting is callable
-        assert callable(docanalyzer.logging.integration.get_setting)
+        assert callable(integration.get_setting)
         
         # Test fallback get_setting function
-        result = docanalyzer.logging.integration.get_setting("test_key", "default_value")
+        result = integration.get_setting("test_key", "default_value")
         assert result == "default_value"
     
     def test_fallback_get_setting_function(self):
         """Test the fallback get_setting function behavior."""
-        import docanalyzer.logging.integration
+        from docanalyzer.logging import integration
         
         # Test with different key-value pairs
         test_cases = [
@@ -467,7 +467,7 @@ class TestImportErrorFallback:
         ]
         
         for key, default in test_cases:
-            result = docanalyzer.logging.integration.get_setting(key, default)
+            result = integration.get_setting(key, default)
             assert result == default
 
 

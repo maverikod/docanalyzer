@@ -108,9 +108,8 @@ class TestVersionModule:
         # TYPE_CHECKING should be False at runtime
         assert docanalyzer._version.TYPE_CHECKING is False
         
-        # VERSION_TUPLE and COMMIT_ID should be object type
+        # VERSION_TUPLE should be object type
         assert docanalyzer._version.VERSION_TUPLE is object
-        assert docanalyzer._version.COMMIT_ID is object
     
     def test_type_checking_block_when_true(self):
         """Test TYPE_CHECKING block when TYPE_CHECKING is True."""
@@ -131,9 +130,8 @@ class TestVersionModule:
         # Assert
         # TYPE_CHECKING should be False at runtime
         assert reloaded_version.TYPE_CHECKING is False
-        # These should be object type at runtime
+        # VERSION_TUPLE should be object type at runtime
         assert reloaded_version.VERSION_TUPLE is object
-        assert reloaded_version.COMMIT_ID is object
     
     def test_type_checking_block_coverage(self):
         """Test TYPE_CHECKING block coverage by simulating TYPE_CHECKING=True."""
@@ -145,31 +143,12 @@ class TestVersionModule:
         if TYPE_CHECKING:
             from typing import Tuple, Union
             VERSION_TUPLE = Tuple[Union[int, str], ...]
-            COMMIT_ID = Union[str, None]
         else:
             VERSION_TUPLE = object
-            COMMIT_ID = object
         
         # Verify the types are defined
         assert VERSION_TUPLE is not object
-        assert COMMIT_ID is not object
         assert hasattr(VERSION_TUPLE, '__origin__')
-        assert hasattr(COMMIT_ID, '__origin__')
-    
-    def test_commit_id_attributes(self):
-        """Test commit ID attributes."""
-        # Act
-        import docanalyzer._version
-        
-        # Assert
-        assert hasattr(docanalyzer._version, '__commit_id__')
-        assert hasattr(docanalyzer._version, 'commit_id')
-        assert isinstance(docanalyzer._version.__commit_id__, str)
-        assert isinstance(docanalyzer._version.commit_id, str)
-        assert docanalyzer._version.__commit_id__ == docanalyzer._version.commit_id
-        
-        # Note: __version_info__ is not exported from the package
-        # Only __version__ is available at package level
     
     def test_version_attributes_are_public(self):
         """Test that version attributes are accessible."""
@@ -379,9 +358,6 @@ class TestVersionModule:
         
         # VERSION_TUPLE should be set to object in the else block
         assert docanalyzer._version.VERSION_TUPLE is object
-        
-        # COMMIT_ID should also be set to object in the else block
-        assert docanalyzer._version.COMMIT_ID is object
     
     def test_type_checking_conditional_execution(self):
         """Test that the TYPE_CHECKING conditional executes both branches."""
@@ -393,12 +369,11 @@ class TestVersionModule:
         assert docanalyzer._version.TYPE_CHECKING is False
         
         # This means the else block should have executed
-        # VERSION_TUPLE and COMMIT_ID should be set to object
+        # VERSION_TUPLE should be set to object
         assert docanalyzer._version.VERSION_TUPLE is object
-        assert docanalyzer._version.COMMIT_ID is object
         
         # This confirms that lines 15-19 were executed
-        # (the else block: VERSION_TUPLE = object; COMMIT_ID = object)
+        # (the else block: VERSION_TUPLE = object)
     
     def test_module_reload_coverage(self):
         """Test module reload to ensure full coverage of conditional blocks."""
@@ -408,7 +383,6 @@ class TestVersionModule:
         # Store original values
         original_version = docanalyzer._version.__version__
         original_tuple = docanalyzer._version.__version_tuple__
-        original_commit = docanalyzer._version.__commit_id__
         
         # Reload the module to ensure all lines are executed
         importlib.reload(docanalyzer._version)
@@ -417,14 +391,12 @@ class TestVersionModule:
         # After reload, all values should be the same
         assert docanalyzer._version.__version__ == original_version
         assert docanalyzer._version.__version_tuple__ == original_tuple
-        assert docanalyzer._version.__commit_id__ == original_commit
         
         # TYPE_CHECKING should still be False
         assert docanalyzer._version.TYPE_CHECKING is False
         
-        # VERSION_TUPLE and COMMIT_ID should still be object
+        # VERSION_TUPLE should still be object
         assert docanalyzer._version.VERSION_TUPLE is object
-        assert docanalyzer._version.COMMIT_ID is object
     
     def test_direct_else_block_execution(self):
         """Test direct execution of the else block logic."""
@@ -434,15 +406,12 @@ class TestVersionModule:
             from typing import Tuple
             from typing import Union
             VERSION_TUPLE = Tuple[Union[int, str], ...]
-            COMMIT_ID = Union[str, None]
         else:
             VERSION_TUPLE = object
-            COMMIT_ID = object
         
         # Assert
         assert TYPE_CHECKING is False
         assert VERSION_TUPLE is object
-        assert COMMIT_ID is object
     
     def test_version_module_import_coverage(self):
         """Test version module import to ensure full coverage."""
@@ -454,17 +423,14 @@ class TestVersionModule:
         # Both imports should have the same values
         assert version1.__version__ == version2.__version__
         assert version1.__version_tuple__ == version2.__version_tuple__
-        assert version1.__commit_id__ == version2.__commit_id__
         
         # TYPE_CHECKING should be False in both
         assert version1.TYPE_CHECKING is False
         assert version2.TYPE_CHECKING is False
         
-        # VERSION_TUPLE and COMMIT_ID should be object in both
+        # VERSION_TUPLE should be object in both
         assert version1.VERSION_TUPLE is object
         assert version2.VERSION_TUPLE is object
-        assert version1.COMMIT_ID is object
-        assert version2.COMMIT_ID is object
     
     def test_type_definitions_at_runtime(self):
         """Test that type definitions are properly set at runtime."""
@@ -473,62 +439,4 @@ class TestVersionModule:
         
         # Assert
         # These should be set to object at runtime (not during type checking)
-        assert docanalyzer._version.VERSION_TUPLE is object
-        assert docanalyzer._version.COMMIT_ID is object
-        
-        # This confirms that the else block (lines 15-19) was executed
-        assert not docanalyzer._version.TYPE_CHECKING
-    
-    def test_commit_id_attributes(self):
-        """Test commit ID attributes and functionality."""
-        # Act
-        import docanalyzer._version
-        
-        # Assert
-        # Check that commit ID attributes exist
-        assert hasattr(docanalyzer._version, '__commit_id__')
-        assert hasattr(docanalyzer._version, 'commit_id')
-        
-        # Check that they are in __all__
-        assert '__commit_id__' in docanalyzer._version.__all__
-        assert 'commit_id' in docanalyzer._version.__all__
-        
-        # Check that they have values
-        assert docanalyzer._version.__commit_id__ is not None
-        assert docanalyzer._version.commit_id is not None
-        
-        # Check that they are consistent
-        assert docanalyzer._version.__commit_id__ == docanalyzer._version.commit_id
-    
-    def test_commit_id_format(self):
-        """Test that commit ID has correct format."""
-        # Act
-        import docanalyzer._version
-        
-        # Assert
-        commit_id = docanalyzer._version.__commit_id__
-        
-        # Should be a string
-        assert isinstance(commit_id, str)
-        
-        # Should not be empty
-        assert len(commit_id) > 0
-        
-        # Should look like a git commit hash (alphanumeric)
-        assert commit_id.isalnum() or any(c in commit_id for c in ['+', '-', '.'])
-    
-    def test_version_and_commit_consistency(self):
-        """Test that version and commit ID are consistent."""
-        # Act
-        import docanalyzer._version
-        
-        # Assert
-        version_str = docanalyzer._version.__version__
-        commit_id = docanalyzer._version.__commit_id__
-        
-        # Version string should contain the commit ID
-        assert commit_id in version_str
-        
-        # Version tuple should also contain commit information
-        version_tuple = docanalyzer._version.__version_tuple__
-        assert len(version_tuple) > 3  # Should have commit info as additional elements 
+        assert docanalyzer._version.VERSION_TUPLE is object 

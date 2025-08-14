@@ -135,6 +135,109 @@ class TestTextBlockExtractor:
         
         with pytest.raises(ValueError, match="Unknown strategy"):
             extractor.extract_blocks("test")
+    
+    def test_extract_paragraph_blocks_with_large_paragraphs(self):
+        """Test paragraph extraction with large paragraphs that need splitting."""
+        extractor = TextBlockExtractor(min_block_size=10, max_block_size=50)
+        text = "This is a very long paragraph that exceeds the maximum block size and should be split into smaller blocks."
+        
+        blocks = extractor._extract_paragraph_blocks(text)
+        
+        assert len(blocks) > 1  # Should be split into multiple blocks
+        for block in blocks:
+            assert len(block) >= 10  # All blocks should meet minimum size
+    
+    def test_extract_paragraph_blocks_with_small_paragraphs(self):
+        """Test paragraph extraction with small paragraphs that need merging."""
+        extractor = TextBlockExtractor(min_block_size=20, max_block_size=100)
+        text = "Short.\n\nAlso short.\n\nAnother short one."
+        
+        blocks = extractor._extract_paragraph_blocks(text)
+        
+        # Should merge small paragraphs
+        assert len(blocks) < 3
+        for block in blocks:
+            assert len(block) >= 20
+    
+    def test_extract_line_blocks_with_large_lines(self):
+        """Test line extraction with large lines that need splitting."""
+        extractor = TextBlockExtractor(strategy="line", min_block_size=10, max_block_size=30)
+        text = "This is a very long line that exceeds the maximum block size and should be split."
+        
+        blocks = extractor._extract_line_blocks(text)
+        
+        assert len(blocks) > 1  # Should be split into multiple blocks
+        for block in blocks:
+            assert len(block) >= 10
+    
+    def test_extract_line_blocks_with_small_lines(self):
+        """Test line extraction with small lines that need merging."""
+        extractor = TextBlockExtractor(strategy="line", min_block_size=20, max_block_size=100)
+        text = "Short line.\nAnother short line.\nYet another short line."
+        
+        blocks = extractor._extract_line_blocks(text)
+        
+        # Should merge small lines
+        assert len(blocks) < 3
+        for block in blocks:
+            assert len(block) >= 20
+    
+    def test_extract_custom_blocks_with_large_blocks(self):
+        """Test custom extraction with large blocks that need splitting."""
+        extractor = TextBlockExtractor(
+            strategy="custom",
+            custom_delimiters=["---"],
+            min_block_size=10,
+            max_block_size=30
+        )
+        text = "This is a very large block that exceeds the maximum size---Another large block."
+        
+        blocks = extractor._extract_custom_blocks(text)
+        
+        assert len(blocks) > 1  # Should be split into multiple blocks
+        for block in blocks:
+            assert len(block) >= 10
+    
+    def test_split_large_block_with_sentences(self):
+        """Test splitting large blocks by sentences."""
+        extractor = TextBlockExtractor(min_block_size=10, max_block_size=50)
+        text = "This is the first sentence. This is the second sentence. This is the third sentence."
+        
+        blocks = extractor._split_large_block(text)
+        
+        assert len(blocks) > 1  # Should be split by sentences
+        for block in blocks:
+            assert len(block) >= 10
+    
+    def test_split_large_block_with_words(self):
+        """Test splitting large blocks by words when sentences don't work."""
+        extractor = TextBlockExtractor(min_block_size=10, max_block_size=30)
+        text = "This is a very long block without proper sentence structure that needs to be split by words"
+        
+        blocks = extractor._split_large_block(text)
+        
+        assert len(blocks) > 1  # Should be split by words
+        for block in blocks:
+            assert len(block) >= 10
+    
+    def test_split_large_block_small_enough(self):
+        """Test splitting block that is already small enough."""
+        extractor = TextBlockExtractor(min_block_size=5, max_block_size=100)
+        text = "Small block"
+        
+        blocks = extractor._split_large_block(text)
+        
+        assert len(blocks) == 1
+        assert blocks[0] == text
+    
+    def test_split_large_block_too_small(self):
+        """Test splitting block that is too small to meet minimum size."""
+        extractor = TextBlockExtractor(min_block_size=20, max_block_size=100)
+        text = "Too small"
+        
+        blocks = extractor._split_large_block(text)
+        
+        assert len(blocks) == 0  # Should be filtered out
 
 
 class TestTextProcessor:
@@ -394,6 +497,39 @@ class TestTextProcessor:
             with pytest.raises(UnicodeDecodeError):
                 processor._read_file_content(str(test_file))
     
+    def test_read_file_content_with_alternative_encoding(self, tmp_path):
+        """Test file content reading with alternative encoding fallback."""
+        processor = TextProcessor(encoding="utf-8")
+        
+        # Create test file with latin-1 content
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Test content with \xe9 character")
+        
+        content = processor._read_file_content(str(test_file))
+        
+        assert "é" in content  # Should be decoded correctly
+    
+    def test_read_file_content_all_encodings_fail(self, tmp_path):
+        """Test file content reading when all encodings fail."""
+        processor = TextProcessor(encoding="utf-8")
+        
+        # Create test file with invalid bytes
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff")
+        
+        # Mock the alternative encodings to fail
+        with patch('builtins.open') as mock_open:
+            # Make all encoding attempts fail
+            mock_open.side_effect = [
+                UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte"),
+                UnicodeDecodeError("latin-1", b"\xff", 0, 1, "invalid start byte"),
+                UnicodeDecodeError("cp1252", b"\xff", 0, 1, "invalid start byte"),
+                UnicodeDecodeError("iso-8859-1", b"\xff", 0, 1, "invalid start byte")
+            ]
+            
+            with pytest.raises(UnicodeDecodeError):
+                processor._read_file_content(str(test_file))
+    
     def test_process_text_content_with_normalization(self):
         """Test text content processing with normalization."""
         processor = TextProcessor(normalize_whitespace=True)
@@ -460,4 +596,25 @@ class TestTextProcessor:
         assert len(blocks) == 3  # All blocks should be included
         assert blocks[0].content == "Block 1"
         assert blocks[1].content == "   "
-        assert blocks[2].content == "Block 2" 
+        assert blocks[2].content == "Block 2"
+    
+    def test_create_processing_blocks_with_line_calculation(self):
+        """Test creation of processing blocks with line number calculation."""
+        processor = TextProcessor()
+        
+        # Create blocks with newlines to test line calculation
+        text_blocks = ["Line 1\nLine 2", "Line 3\nLine 4\nLine 5", "Line 6"]
+        file_path = "/test/file.txt"
+        
+        blocks = processor._create_processing_blocks(text_blocks, file_path)
+        
+        assert len(blocks) == 3
+        
+        # Check that line numbers are calculated
+        for block in blocks:
+            assert hasattr(block, 'start_line')
+            assert hasattr(block, 'end_line')
+            assert hasattr(block, 'start_char')
+            assert hasattr(block, 'end_char')
+            assert block.start_line > 0
+            assert block.end_line >= block.start_line 

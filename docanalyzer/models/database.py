@@ -866,4 +866,409 @@ class ProcessingStatistics:
             f"period='{self.period_start.strftime('%Y-%m-%d %H:%M:%S')}-{self.period_end.strftime('%H:%M:%S')}', "
             f"files={self.total_files_processed}, "
             f"success={self.total_files_successful})"
+        )
+
+
+class DatabaseMetadata:
+    """
+    Database Metadata Model - Database Information Container
+    
+    Represents comprehensive metadata about the database including
+    configuration, health status, and operational information.
+    
+    This model is used for database monitoring, health checks,
+    and providing operational insights.
+    
+    Attributes:
+        total_files (int): Total number of files in database.
+            Must be non-negative integer.
+        total_chunks (int): Total number of chunks in database.
+            Must be non-negative integer.
+        total_size_bytes (int): Total size of all files in bytes.
+            Must be non-negative integer.
+        health_status (str): Current health status of database.
+            Must be valid health status string.
+        vector_store_status (str): Status of vector store connection.
+            Must be valid status string.
+        cache_size (int): Current number of cached items.
+            Must be non-negative integer.
+        cache_hit_rate (float): Cache hit rate percentage.
+            Must be between 0.0 and 1.0.
+        last_updated (datetime): Timestamp of last metadata update.
+            Used for tracking metadata freshness.
+        configuration (Dict[str, Any]): Database configuration.
+            Contains configuration parameters and settings.
+    
+    Example:
+        >>> metadata = DatabaseMetadata(
+        ...     total_files=1000,
+        ...     total_chunks=5000,
+        ...     health_status="healthy",
+        ...     vector_store_status="connected"
+        ... )
+        >>> print(metadata.total_files)  # 1000
+    
+    Raises:
+        ValueError: If total_files, total_chunks, or total_size_bytes are negative
+        ValueError: If cache_hit_rate is not between 0.0 and 1.0
+        TypeError: If last_updated is not datetime object
+    """
+    
+    def __init__(
+        self,
+        total_files: int,
+        total_chunks: int,
+        total_size_bytes: int,
+        health_status: str,
+        vector_store_status: str,
+        cache_size: int = 0,
+        cache_hit_rate: float = 0.0,
+        last_updated: Optional[datetime] = None,
+        configuration: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Initialize Database Metadata.
+        
+        Args:
+            total_files (int): Total number of files in database.
+                Must be non-negative integer.
+            total_chunks (int): Total number of chunks in database.
+                Must be non-negative integer.
+            total_size_bytes (int): Total size of all files in bytes.
+                Must be non-negative integer.
+            health_status (str): Current health status of database.
+                Must be valid health status string.
+            vector_store_status (str): Status of vector store connection.
+                Must be valid status string.
+            cache_size (int): Current number of cached items.
+                Must be non-negative integer. Defaults to 0.
+            cache_hit_rate (float): Cache hit rate percentage.
+                Must be between 0.0 and 1.0. Defaults to 0.0.
+            last_updated (Optional[datetime]): Timestamp of last metadata update.
+                If None, uses current timestamp. Defaults to None.
+            configuration (Optional[Dict[str, Any]]): Database configuration.
+                If None, uses empty dictionary. Defaults to None.
+        
+        Raises:
+            ValueError: If total_files, total_chunks, or total_size_bytes are negative
+            ValueError: If cache_hit_rate is not between 0.0 and 1.0
+            TypeError: If last_updated is not datetime object
+        """
+        if total_files < 0:
+            raise ValueError("total_files must be non-negative")
+        if total_chunks < 0:
+            raise ValueError("total_chunks must be non-negative")
+        if total_size_bytes < 0:
+            raise ValueError("total_size_bytes must be non-negative")
+        if cache_size < 0:
+            raise ValueError("cache_size must be non-negative")
+        if not 0.0 <= cache_hit_rate <= 1.0:
+            raise ValueError("cache_hit_rate must be between 0.0 and 1.0")
+        if last_updated is not None and not isinstance(last_updated, datetime):
+            raise TypeError("last_updated must be datetime object")
+        
+        self.total_files = total_files
+        self.total_chunks = total_chunks
+        self.total_size_bytes = total_size_bytes
+        self.health_status = health_status
+        self.vector_store_status = vector_store_status
+        self.cache_size = cache_size
+        self.cache_hit_rate = cache_hit_rate
+        self.last_updated = last_updated or datetime.now()
+        self.configuration = configuration or {}
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert DatabaseMetadata to dictionary.
+        
+        Returns:
+            Dict[str, Any]: Dictionary representation of metadata.
+        
+        Example:
+            >>> metadata = DatabaseMetadata(1000, 5000, 1024000, "healthy", "connected")
+            >>> data = metadata.to_dict()
+            >>> print(data["total_files"])  # 1000
+        """
+        return {
+            "total_files": self.total_files,
+            "total_chunks": self.total_chunks,
+            "total_size_bytes": self.total_size_bytes,
+            "health_status": self.health_status,
+            "vector_store_status": self.vector_store_status,
+            "cache_size": self.cache_size,
+            "cache_hit_rate": self.cache_hit_rate,
+            "last_updated": self.last_updated.isoformat(),
+            "configuration": self.configuration
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'DatabaseMetadata':
+        """
+        Create DatabaseMetadata instance from dictionary.
+        
+        Args:
+            data (Dict[str, Any]): Dictionary with DatabaseMetadata attributes.
+                Must contain required fields: total_files, total_chunks, total_size_bytes,
+                health_status, vector_store_status.
+        
+        Returns:
+            DatabaseMetadata: New DatabaseMetadata instance.
+        
+        Raises:
+            ValueError: If required fields are missing or invalid
+            TypeError: If data types are incorrect
+        
+        Example:
+            >>> data = {"total_files": 1000, "total_chunks": 5000, "health_status": "healthy", ...}
+            >>> metadata = DatabaseMetadata.from_dict(data)
+        """
+        if not isinstance(data, dict):
+            raise TypeError("data must be dictionary")
+        
+        required_fields = ["total_files", "total_chunks", "total_size_bytes", "health_status", "vector_store_status"]
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Required field '{field}' missing in data")
+        
+        # Parse datetime object
+        last_updated = None
+        if "last_updated" in data and data["last_updated"]:
+            last_updated = datetime.fromisoformat(data["last_updated"])
+        
+        return cls(
+            total_files=data["total_files"],
+            total_chunks=data["total_chunks"],
+            total_size_bytes=data["total_size_bytes"],
+            health_status=data["health_status"],
+            vector_store_status=data["vector_store_status"],
+            cache_size=data.get("cache_size", 0),
+            cache_hit_rate=data.get("cache_hit_rate", 0.0),
+            last_updated=last_updated,
+            configuration=data.get("configuration", {})
+        )
+    
+    def __eq__(self, other: object) -> bool:
+        """
+        Compare DatabaseMetadata instances for equality.
+        
+        Args:
+            other (object): Object to compare with.
+        
+        Returns:
+            bool: True if instances are equal, False otherwise.
+        
+        Example:
+            >>> metadata1 = DatabaseMetadata(1000, 5000, 1024000, "healthy", "connected")
+            >>> metadata2 = DatabaseMetadata(1000, 5000, 1024000, "healthy", "connected")
+            >>> metadata1 == metadata2  # True
+        """
+        if not isinstance(other, DatabaseMetadata):
+            return False
+        
+        return (
+            self.total_files == other.total_files and
+            self.total_chunks == other.total_chunks and
+            self.total_size_bytes == other.total_size_bytes and
+            self.health_status == other.health_status and
+            self.vector_store_status == other.vector_store_status and
+            self.cache_size == other.cache_size and
+            abs(self.cache_hit_rate - other.cache_hit_rate) < 0.001
+        )
+    
+    def __repr__(self) -> str:
+        """
+        String representation of DatabaseMetadata.
+        
+        Returns:
+            str: Human-readable representation.
+        
+        Example:
+            >>> metadata = DatabaseMetadata(1000, 5000, 1024000, "healthy", "connected")
+            >>> print(metadata)  # "DatabaseMetadata(files=1000, chunks=5000, health=healthy)"
+        """
+        return (
+            f"DatabaseMetadata("
+            f"files={self.total_files}, "
+            f"chunks={self.total_chunks}, "
+            f"health={self.health_status})"
+        )
+
+
+class DatabaseHealth:
+    """
+    Database Health Model - Database Health Status Container
+    
+    Represents the health status of the database including
+    connection status, performance metrics, and error information.
+    
+    This model is used for health monitoring and diagnostics.
+    
+    Attributes:
+        status (str): Overall health status.
+            Must be valid health status string.
+        connection_status (str): Database connection status.
+            Must be valid connection status string.
+        performance_metrics (Dict[str, Any]): Performance metrics.
+            Contains various performance indicators.
+        error_count (int): Number of recent errors.
+            Must be non-negative integer.
+        last_error (Optional[str]): Last error message.
+            None if no recent errors.
+        last_check (datetime): Timestamp of last health check.
+            Used for tracking health check frequency.
+    
+    Example:
+        >>> health = DatabaseHealth("healthy", "connected", {"response_time": 0.1})
+        >>> print(health.status)  # "healthy"
+    
+    Raises:
+        ValueError: If error_count is negative
+        TypeError: If last_check is not datetime object
+    """
+    
+    def __init__(
+        self,
+        status: str,
+        connection_status: str,
+        performance_metrics: Optional[Dict[str, Any]] = None,
+        error_count: int = 0,
+        last_error: Optional[str] = None,
+        last_check: Optional[datetime] = None
+    ):
+        """
+        Initialize Database Health.
+        
+        Args:
+            status (str): Overall health status.
+                Must be valid health status string.
+            connection_status (str): Database connection status.
+                Must be valid connection status string.
+            performance_metrics (Optional[Dict[str, Any]]): Performance metrics.
+                If None, uses empty dictionary. Defaults to None.
+            error_count (int): Number of recent errors.
+                Must be non-negative integer. Defaults to 0.
+            last_error (Optional[str]): Last error message.
+                None if no recent errors. Defaults to None.
+            last_check (Optional[datetime]): Timestamp of last health check.
+                If None, uses current timestamp. Defaults to None.
+        
+        Raises:
+            ValueError: If error_count is negative
+            TypeError: If last_check is not datetime object
+        """
+        if error_count < 0:
+            raise ValueError("error_count must be non-negative")
+        if last_check is not None and not isinstance(last_check, datetime):
+            raise TypeError("last_check must be datetime object")
+        
+        self.status = status
+        self.connection_status = connection_status
+        self.performance_metrics = performance_metrics or {}
+        self.error_count = error_count
+        self.last_error = last_error
+        self.last_check = last_check or datetime.now()
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert DatabaseHealth to dictionary.
+        
+        Returns:
+            Dict[str, Any]: Dictionary representation of health status.
+        
+        Example:
+            >>> health = DatabaseHealth("healthy", "connected", {"response_time": 0.1})
+            >>> data = health.to_dict()
+            >>> print(data["status"])  # "healthy"
+        """
+        return {
+            "status": self.status,
+            "connection_status": self.connection_status,
+            "performance_metrics": self.performance_metrics,
+            "error_count": self.error_count,
+            "last_error": self.last_error,
+            "last_check": self.last_check.isoformat()
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'DatabaseHealth':
+        """
+        Create DatabaseHealth instance from dictionary.
+        
+        Args:
+            data (Dict[str, Any]): Dictionary with DatabaseHealth attributes.
+                Must contain required fields: status, connection_status.
+        
+        Returns:
+            DatabaseHealth: New DatabaseHealth instance.
+        
+        Raises:
+            ValueError: If required fields are missing or invalid
+            TypeError: If data types are incorrect
+        
+        Example:
+            >>> data = {"status": "healthy", "connection_status": "connected", ...}
+            >>> health = DatabaseHealth.from_dict(data)
+        """
+        if not isinstance(data, dict):
+            raise TypeError("data must be dictionary")
+        
+        required_fields = ["status", "connection_status"]
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Required field '{field}' missing in data")
+        
+        # Parse datetime object
+        last_check = None
+        if "last_check" in data and data["last_check"]:
+            last_check = datetime.fromisoformat(data["last_check"])
+        
+        return cls(
+            status=data["status"],
+            connection_status=data["connection_status"],
+            performance_metrics=data.get("performance_metrics", {}),
+            error_count=data.get("error_count", 0),
+            last_error=data.get("last_error"),
+            last_check=last_check
+        )
+    
+    def __eq__(self, other: object) -> bool:
+        """
+        Compare DatabaseHealth instances for equality.
+        
+        Args:
+            other (object): Object to compare with.
+        
+        Returns:
+            bool: True if instances are equal, False otherwise.
+        
+        Example:
+            >>> health1 = DatabaseHealth("healthy", "connected")
+            >>> health2 = DatabaseHealth("healthy", "connected")
+            >>> health1 == health2  # True
+        """
+        if not isinstance(other, DatabaseHealth):
+            return False
+        
+        return (
+            self.status == other.status and
+            self.connection_status == other.connection_status and
+            self.error_count == other.error_count and
+            self.last_error == other.last_error
+        )
+    
+    def __repr__(self) -> str:
+        """
+        String representation of DatabaseHealth.
+        
+        Returns:
+            str: Human-readable representation.
+        
+        Example:
+            >>> health = DatabaseHealth("healthy", "connected")
+            >>> print(health)  # "DatabaseHealth(status=healthy, connection=connected)"
+        """
+        return (
+            f"DatabaseHealth("
+            f"status={self.status}, "
+            f"connection={self.connection_status})"
         ) 

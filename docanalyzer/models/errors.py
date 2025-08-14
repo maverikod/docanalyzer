@@ -22,6 +22,307 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
+class ValidationError(Exception):
+    """
+    Validation Error - Exception for validation failures.
+    
+    Raised when data validation fails, such as when input parameters
+    are invalid or when data doesn't meet required constraints.
+    
+    Attributes:
+        message (str): Error message describing the validation failure
+        field (Optional[str]): Field that failed validation
+        value (Optional[Any]): Invalid value that caused the error
+    """
+    
+    def __init__(self, message: str, field: Optional[str] = None, value: Optional[Any] = None):
+        """
+        Initialize ValidationError instance.
+        
+        Args:
+            message (str): Error message describing the validation failure
+            field (Optional[str]): Field that failed validation
+            value (Optional[Any]): Invalid value that caused the error
+        """
+        super().__init__(message)
+        self.message = message
+        self.field = field
+        self.value = value
+
+
+class ConnectionError(Exception):
+    """
+    Connection Error - Exception for connection failures.
+    
+    Raised when connection to external services fails, such as when
+    trying to connect to vector store, database, or other services.
+    
+    Attributes:
+        message (str): Error message describing the connection failure
+        service (Optional[str]): Service that failed to connect
+        operation (Optional[str]): Operation that failed
+    """
+    
+    def __init__(self, message: str, service: Optional[str] = None, operation: Optional[str] = None):
+        """
+        Initialize ConnectionError instance.
+        
+        Args:
+            message (str): Error message describing the connection failure
+            service (Optional[str]): Service that failed to connect
+            operation (Optional[str]): Operation that failed
+        """
+        super().__init__(message)
+        self.message = message
+        self.service = service
+        self.operation = operation
+
+
+class DatabaseError(Exception):
+    """
+    Database Error - Exception for database operation failures.
+    
+    Raised when database operations fail, such as when creating,
+    updating, or deleting records in the database.
+    
+    Attributes:
+        message (str): Error message describing the database failure
+        operation (Optional[str]): Database operation that failed
+        table (Optional[str]): Database table involved in the operation
+        record_id (Optional[str]): ID of the record involved in the operation
+    """
+    
+    def __init__(self, message: str, operation: Optional[str] = None, 
+                 table: Optional[str] = None, record_id: Optional[str] = None):
+        """
+        Initialize DatabaseError instance.
+        
+        Args:
+            message (str): Error message describing the database failure
+            operation (Optional[str]): Database operation that failed
+            table (Optional[str]): Database table involved in the operation
+            record_id (Optional[str]): ID of the record involved in the operation
+        """
+        super().__init__(message)
+        self.message = message
+        self.operation = operation
+        self.table = table
+        self.record_id = record_id
+
+
+class ProcessManagementError(Exception):
+    """
+    Process Management Error - Exception for process management failures.
+    
+    Raised when process management operations fail, such as when starting,
+    stopping, or monitoring processes.
+    
+    Attributes:
+        message (str): Error message describing the process management failure
+        operation (Optional[str]): Process operation that failed
+        process_id (Optional[int]): ID of the process involved in the operation
+        error_code (Optional[int]): Error code from the operation
+    """
+    
+    def __init__(self, message: str, operation: Optional[str] = None, 
+                 process_id: Optional[int] = None, error_code: Optional[int] = None):
+        """
+        Initialize ProcessManagementError instance.
+        
+        Args:
+            message (str): Error message describing the process management failure
+            operation (Optional[str]): Process operation that failed
+            process_id (Optional[int]): ID of the process involved in the operation
+            error_code (Optional[int]): Error code from the operation
+        """
+        super().__init__(message)
+        self.message = message
+        self.operation = operation
+        self.process_id = process_id
+        self.error_code = error_code
+
+
+class ProcessNotFoundError(Exception):
+    """
+    Process Not Found Error - Exception for missing process errors.
+    
+    Raised when a requested process cannot be found, such as when
+    trying to stop or monitor a non-existent process.
+    
+    Attributes:
+        message (str): Error message describing the process not found error
+        process_id (Optional[int]): ID of the process that was not found
+        operation (Optional[str]): Operation that failed
+    """
+    
+    def __init__(self, message: str, process_id: Optional[int] = None, operation: Optional[str] = None):
+        """
+        Initialize ProcessNotFoundError instance.
+        
+        Args:
+            message (str): Error message describing the process not found error
+            process_id (Optional[int]): ID of the process that was not found
+            operation (Optional[str]): Operation that failed
+        """
+        super().__init__(message)
+        self.message = message
+        self.process_id = process_id
+        self.operation = operation
+
+
+class ResourceLimitError(Exception):
+    """
+    Resource Limit Error - Exception for resource limit violations.
+    
+    Raised when resource limits are exceeded, such as when trying to
+    start more processes than allowed or when memory usage is too high.
+    
+    Attributes:
+        message (str): Error message describing the resource limit violation
+        resource_type (Optional[str]): Type of resource that exceeded limit
+        current_usage (Optional[int]): Current usage of the resource
+        limit (Optional[int]): Limit that was exceeded
+    """
+    
+    def __init__(self, message: str, resource_type: Optional[str] = None, 
+                 current_usage: Optional[int] = None, limit: Optional[int] = None):
+        """
+        Initialize ResourceLimitError instance.
+        
+        Args:
+            message (str): Error message describing the resource limit violation
+            resource_type (Optional[str]): Type of resource that exceeded limit
+            current_usage (Optional[int]): Current usage of the resource
+            limit (Optional[int]): Limit that was exceeded
+        """
+        super().__init__(message)
+        self.message = message
+        self.resource_type = resource_type
+        self.current_usage = current_usage
+        self.limit = limit
+
+
+class HealthCheckError(Exception):
+    """
+    Health Check Error - Exception for health check failures.
+    
+    Raised when health checks fail, such as when a process is not
+    responding or when system resources are critically low.
+    
+    Attributes:
+        message (str): Error message describing the health check failure
+        component (Optional[str]): Component that failed health check
+        check_type (Optional[str]): Type of health check that failed
+        details (Optional[Dict[str, Any]]): Additional details about the failure
+    """
+    
+    def __init__(self, message: str, component: Optional[str] = None, 
+                 check_type: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
+        """
+        Initialize HealthCheckError instance.
+        
+        Args:
+            message (str): Error message describing the health check failure
+            component (Optional[str]): Component that failed health check
+            check_type (Optional[str]): Type of health check that failed
+            details (Optional[Dict[str, Any]]): Additional details about the failure
+        """
+        super().__init__(message)
+        self.message = message
+        self.component = component
+        self.check_type = check_type
+        self.details = details or {}
+
+
+class QueueFullError(Exception):
+    """
+    Queue Full Error - Exception for queue capacity violations.
+    
+    Raised when a queue is full and cannot accept more items,
+    such as when message queues are at capacity.
+    
+    Attributes:
+        message (str): Error message describing the queue full error
+        queue_name (Optional[str]): Name of the queue that is full
+        queue_size (Optional[int]): Current size of the queue
+        max_size (Optional[int]): Maximum size of the queue
+    """
+    
+    def __init__(self, message: str, queue_name: Optional[str] = None, 
+                 queue_size: Optional[int] = None, max_size: Optional[int] = None):
+        """
+        Initialize QueueFullError instance.
+        
+        Args:
+            message (str): Error message describing the queue full error
+            queue_name (Optional[str]): Name of the queue that is full
+            queue_size (Optional[int]): Current size of the queue
+            max_size (Optional[int]): Maximum size of the queue
+        """
+        super().__init__(message)
+        self.message = message
+        self.queue_name = queue_name
+        self.queue_size = queue_size
+        self.max_size = max_size
+
+
+class QueueEmptyError(Exception):
+    """
+    Queue Empty Error - Exception for empty queue operations.
+    
+    Raised when trying to get an item from an empty queue,
+    such as when message queues have no items to retrieve.
+    
+    Attributes:
+        message (str): Error message describing the queue empty error
+        queue_name (Optional[str]): Name of the queue that is empty
+        operation (Optional[str]): Operation that failed
+    """
+    
+    def __init__(self, message: str, queue_name: Optional[str] = None, operation: Optional[str] = None):
+        """
+        Initialize QueueEmptyError instance.
+        
+        Args:
+            message (str): Error message describing the queue empty error
+            queue_name (Optional[str]): Name of the queue that is empty
+            operation (Optional[str]): Operation that failed
+        """
+        super().__init__(message)
+        self.message = message
+        self.queue_name = queue_name
+        self.operation = operation
+
+
+class NotFoundError(Exception):
+    """
+    Not Found Error - Exception for resource not found failures.
+    
+    Raised when a requested resource is not found, such as when
+    trying to retrieve a file record that doesn't exist.
+    
+    Attributes:
+        message (str): Error message describing the not found failure
+        resource_type (Optional[str]): Type of resource that was not found
+        resource_id (Optional[str]): ID of the resource that was not found
+    """
+    
+    def __init__(self, message: str, resource_type: Optional[str] = None, 
+                 resource_id: Optional[str] = None):
+        """
+        Initialize NotFoundError instance.
+        
+        Args:
+            message (str): Error message describing the not found failure
+            resource_type (Optional[str]): Type of resource that was not found
+            resource_id (Optional[str]): ID of the resource that was not found
+        """
+        super().__init__(message)
+        self.message = message
+        self.resource_type = resource_type
+        self.resource_id = resource_id
+
+
 class ErrorSeverity(Enum):
     """
     Error Severity Enumeration - Error Impact Levels
@@ -68,7 +369,7 @@ class ErrorCategory(Enum):
     UNKNOWN = "unknown"
 
 
-class ProcessingError:
+class ProcessingError(Exception):
     """
     Processing Error Model - Error Information Container
     
@@ -172,6 +473,9 @@ class ProcessingError:
             ValueError: If error_type or error_message is empty
             TypeError: If error_category or error_severity is not enum value
         """
+        # Call parent constructor with error message
+        super().__init__(error_message)
+        
         # Validate required parameters
         if not error_type or not isinstance(error_type, str):
             raise ValueError("error_type must be non-empty string")

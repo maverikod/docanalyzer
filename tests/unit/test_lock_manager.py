@@ -103,9 +103,22 @@ class TestLockManager:
     @pytest.mark.asyncio
     async def test_create_lock_already_locked_active_process(self, lock_manager, test_directory):
         """Test lock creation when directory is already locked by active process."""
-        # This test is skipped due to complex mocking requirements
-        # The functionality is covered by other tests
-        pytest.skip("Skipped due to complex mocking requirements")
+        # Arrange
+        existing_lock = LockFile(
+            process_id=99999,
+            created_at=datetime.now(),
+            directory=test_directory,
+            status="active",
+            lock_file_path=f"{test_directory}/.processing.lock"
+        )
+        
+        with patch.object(Path, 'exists', return_value=True):
+            with patch.object(lock_manager, '_read_lock_file', return_value=existing_lock):
+                with patch.object(lock_manager, 'is_process_alive', return_value=True):
+                    with patch.object(lock_manager, '_remove_lock_file', return_value=True):
+                        # Act & Assert
+                        with pytest.raises(LockError, match="Directory already locked by process 99999"):
+                            await lock_manager.create_lock(test_directory)
     
     @pytest.mark.asyncio
     async def test_create_lock_orphaned_lock(self, lock_manager, test_directory):

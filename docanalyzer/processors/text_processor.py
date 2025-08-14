@@ -519,7 +519,7 @@ class TextProcessor(BaseProcessor):
                 except UnicodeDecodeError:
                     continue
             
-            raise UnicodeDecodeError(f"Cannot decode {file_path} with any supported encoding")
+            raise UnicodeDecodeError("utf-8", b"", 0, 1, f"Cannot decode {file_path} with any supported encoding")
     
     def _process_text_content(self, text: str) -> str:
         """

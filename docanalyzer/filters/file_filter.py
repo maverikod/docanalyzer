@@ -392,7 +392,7 @@ class FileFilter:
                 should_process=True,
                 reason="No extension restrictions",
                 filter_name="extension_filter",
-                metadata={"extension": file_info.extension}
+                metadata={"extension": file_info.file_extension}
             )
         
         # Check if file extension is supported

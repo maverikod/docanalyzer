@@ -397,6 +397,59 @@ class MetricsCollector:
         
         logger.info("MetricsCollector initialized")
     
+    def record_operation(self, operation: str, duration: float, success: bool, result_count: int = 0) -> None:
+        """
+        Record operation metrics.
+        
+        Args:
+            operation (str): Name of the operation.
+                Must be non-empty string.
+            duration (float): Duration of the operation in seconds.
+                Must be non-negative float.
+            success (bool): Whether the operation was successful.
+            result_count (int): Number of results from the operation.
+                Must be non-negative integer. Defaults to 0.
+        
+        Raises:
+            ValueError: If parameters are invalid
+            MetricsError: If recording fails
+        """
+        try:
+            if not operation or not isinstance(operation, str):
+                raise ValueError("operation must be non-empty string")
+            
+            if duration < 0:
+                raise ValueError("duration must be non-negative")
+            
+            if result_count < 0:
+                raise ValueError("result_count must be non-negative")
+            
+            # Record operation metrics
+            self.operation_metrics.record_operation(operation, duration, success, result_count)
+            logger.debug(f"Recorded operation: {operation}, duration: {duration}s, success: {success}")
+            
+        except Exception as e:
+            error_msg = f"Failed to record operation: {e}"
+            logger.error(error_msg)
+            raise MetricsError(error_msg, "record_operation", "metrics")
+    
+    def get_metrics(self) -> Dict[str, Any]:
+        """
+        Get current metrics.
+        
+        Returns:
+            Dict[str, Any]: Current metrics data.
+        """
+        try:
+            return {
+                "ops": len(self.operation_metrics.operations),
+                "files": len(self.processing_metrics.processed_files),
+                "errors": len(self.error_metrics.errors)
+            }
+        except Exception as e:
+            logger.error(f"Failed to get metrics: {e}")
+            return {}
+    
     def start_collection(self) -> bool:
         """
         Start metrics collection.

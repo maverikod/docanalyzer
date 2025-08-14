@@ -28,6 +28,9 @@ from mcp_proxy_adapter.core.settings import (
 )
 from mcp_proxy_adapter.config import config
 
+# Import unified configuration
+from docanalyzer.config import get_unified_config
+
 # Import command registry for manual registration
 from mcp_proxy_adapter.commands.command_registry import registry
 
@@ -66,7 +69,10 @@ def main():
     setup_logging()
     logger = get_logger("docanalyzer")
     
-    # Get settings from configuration using built-in functions
+    # Get unified configuration
+    unified_config = get_unified_config()
+    
+    # Get settings from configuration using built-in functions (for backward compatibility)
     server_host = get_server_host()
     server_port = get_server_port()
     server_debug = get_server_debug()
@@ -82,11 +88,14 @@ def main():
     print("   and adds new documents to the database.")
     print()
     print("⚙️  Configuration:")
-    print(f"   • Server: {server_host}:{server_port}")
-    print(f"   • Debug: {server_debug}")
-    print(f"   • Log Level: {logging_settings['level']}")
-    print(f"   • Log Directory: {logging_settings['log_dir']}")
-    print(f"   • Auto Discovery: {commands_settings['auto_discovery']}")
+    print(f"   • Server: {unified_config.server.host}:{unified_config.server.port}")
+    print(f"   • Debug: {unified_config.server.debug}")
+    print(f"   • Log Level: {unified_config.logging.level}")
+    print(f"   • Log Directory: {unified_config.logging.log_dir}")
+    print(f"   • Auto Discovery: {unified_config.commands.auto_discovery}")
+    print(f"   • Vector Store: {unified_config.get_service_url('vector_store')}")
+    print(f"   • Chunker: {unified_config.get_service_url('chunker')}")
+    print(f"   • Embedding: {unified_config.get_service_url('embedding')}")
     print()
     print("🔧 Available Commands:")
     print("   • help - Built-in help command")

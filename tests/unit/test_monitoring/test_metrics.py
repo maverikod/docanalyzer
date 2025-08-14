@@ -419,33 +419,33 @@ class TestMetricsAdvanced:
     def test_import_error_fallback_values(self):
         """Test fallback values when mcp_proxy_adapter is not available."""
         # This test verifies that fallback values are properly set
-        import docanalyzer.monitoring.metrics
+        from docanalyzer.monitoring import metrics
         
         # Verify fallback values are available
-        assert hasattr(docanalyzer.monitoring.metrics, 'FrameworkMetricsCollector')
-        assert hasattr(docanalyzer.monitoring.metrics, 'MetricType')
-        assert hasattr(docanalyzer.monitoring.metrics, 'MetricValue')
+        assert hasattr(metrics, 'FrameworkMetricsCollector')
+        assert hasattr(metrics, 'MetricType')
+        assert hasattr(metrics, 'MetricValue')
         
         # Verify fallback types
-        assert docanalyzer.monitoring.metrics.FrameworkMetricsCollector is object
-        assert docanalyzer.monitoring.metrics.MetricType is str
+        assert metrics.FrameworkMetricsCollector is object
+        assert metrics.MetricType is str
         # MetricValue should be a type annotation
-        assert hasattr(docanalyzer.monitoring.metrics, 'MetricValue')
+        assert hasattr(metrics, 'MetricValue')
     
     def test_metric_types_definition(self):
         """Test metric types definition."""
-        import docanalyzer.monitoring.metrics
+        from docanalyzer.monitoring import metrics
         
         expected_types = ['COUNTER', 'GAUGE', 'HISTOGRAM', 'SUMMARY']
         for metric_type in expected_types:
-            assert metric_type in docanalyzer.monitoring.metrics.METRIC_TYPES
-            assert isinstance(docanalyzer.monitoring.metrics.METRIC_TYPES[metric_type], str)
+            assert metric_type in metrics.METRIC_TYPES
+            assert isinstance(metrics.METRIC_TYPES[metric_type], str)
     
     def test_default_metrics_config(self):
         """Test default metrics configuration."""
-        import docanalyzer.monitoring.metrics
+        from docanalyzer.monitoring import metrics
         
-        config = docanalyzer.monitoring.metrics.DEFAULT_METRICS_CONFIG
+        config = metrics.DEFAULT_METRICS_CONFIG
         
         assert 'collection_interval' in config
         assert 'retention_period' in config

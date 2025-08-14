@@ -724,4 +724,137 @@ class FileProcessingResult:
             f"processing_id='{self.processing_id}', "
             f"time={self.processing_time_seconds:.2f}s"
             f")"
+        )
+
+
+class ProcessingResult:
+    """
+    Processing Result Model - Generic Processing Result Container
+    
+    Represents a generic result of any processing operation.
+    Used for operations that don't fit the specific FileProcessingResult model.
+    
+    Attributes:
+        success (bool): Whether the processing operation was successful.
+        message (str): Human-readable message about the result.
+        data (Optional[Dict[str, Any]]): Additional result data.
+        processing_time (float): Time taken for processing in seconds.
+        error_details (Optional[str]): Detailed error information if failed.
+        metadata (Dict[str, Any]): Additional metadata about the operation.
+    """
+    
+    def __init__(
+        self,
+        success: bool,
+        message: str,
+        data: Optional[Dict[str, Any]] = None,
+        processing_time: float = 0.0,
+        error_details: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Initialize ProcessingResult instance.
+        
+        Args:
+            success (bool): Whether the processing operation was successful.
+            message (str): Human-readable message about the result.
+            data (Optional[Dict[str, Any]]): Additional result data.
+                Defaults to None.
+            processing_time (float): Time taken for processing in seconds.
+                Defaults to 0.0.
+            error_details (Optional[str]): Detailed error information if failed.
+                Defaults to None.
+            metadata (Optional[Dict[str, Any]]): Additional metadata about the operation.
+                Defaults to None.
+        """
+        self.success = success
+        self.message = message
+        self.data = data or {}
+        self.processing_time = processing_time
+        self.error_details = error_details
+        self.metadata = metadata or {}
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert ProcessingResult to dictionary representation.
+        
+        Returns:
+            Dict[str, Any]: Dictionary with ProcessingResult attributes.
+        """
+        return {
+            "success": self.success,
+            "message": self.message,
+            "data": self.data.copy(),
+            "processing_time": self.processing_time,
+            "error_details": self.error_details,
+            "metadata": self.metadata.copy()
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ProcessingResult':
+        """
+        Create ProcessingResult instance from dictionary.
+        
+        Args:
+            data (Dict[str, Any]): Dictionary with ProcessingResult attributes.
+                Must contain required fields: success, message.
+        
+        Returns:
+            ProcessingResult: New ProcessingResult instance.
+        
+        Raises:
+            ValueError: If required fields are missing
+        """
+        if not isinstance(data, dict):
+            raise ValueError("data must be dictionary")
+        
+        required_fields = ["success", "message"]
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Required field '{field}' missing in data")
+        
+        return cls(
+            success=data["success"],
+            message=data["message"],
+            data=data.get("data"),
+            processing_time=data.get("processing_time", 0.0),
+            error_details=data.get("error_details"),
+            metadata=data.get("metadata")
+        )
+    
+    def __eq__(self, other: object) -> bool:
+        """
+        Compare ProcessingResult instances for equality.
+        
+        Args:
+            other (object): Object to compare with.
+        
+        Returns:
+            bool: True if instances are equal, False otherwise.
+        """
+        if not isinstance(other, ProcessingResult):
+            return False
+        
+        return (
+            self.success == other.success and
+            self.message == other.message and
+            self.data == other.data and
+            self.processing_time == other.processing_time and
+            self.error_details == other.error_details and
+            self.metadata == other.metadata
+        )
+    
+    def __repr__(self) -> str:
+        """
+        String representation of ProcessingResult.
+        
+        Returns:
+            str: Human-readable representation.
+        """
+        return (
+            f"ProcessingResult("
+            f"success={self.success}, "
+            f"message='{self.message}', "
+            f"time={self.processing_time:.2f}s"
+            f")"
         ) 

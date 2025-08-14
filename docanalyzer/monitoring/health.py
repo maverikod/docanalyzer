@@ -245,6 +245,50 @@ class HealthChecker:
         
         logger.info("HealthChecker initialized")
     
+    async def initialize(self) -> None:
+        """
+        Initialize health checker.
+        
+        Performs any necessary initialization for health checking.
+        This method is called during service initialization.
+        
+        Returns:
+            None
+        
+        Raises:
+            HealthCheckError: If initialization fails
+        """
+        try:
+            # Start health checks
+            self.start_health_checks()
+            logger.info("HealthChecker initialized successfully")
+        except Exception as e:
+            error_msg = f"Failed to initialize HealthChecker: {e}"
+            logger.error(error_msg)
+            raise HealthCheckError(error_msg, None, "initialize")
+    
+    async def cleanup(self) -> None:
+        """
+        Cleanup health checker.
+        
+        Performs cleanup operations for health checking.
+        This method is called during service cleanup.
+        
+        Returns:
+            None
+        
+        Raises:
+            HealthCheckError: If cleanup fails
+        """
+        try:
+            # Stop health checks
+            self.stop_health_checks()
+            logger.info("HealthChecker cleaned up successfully")
+        except Exception as e:
+            error_msg = f"Failed to cleanup HealthChecker: {e}"
+            logger.error(error_msg)
+            raise HealthCheckError(error_msg, None, "cleanup")
+    
     def start_health_checks(self) -> bool:
         """
         Start health checking.

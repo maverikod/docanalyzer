@@ -185,6 +185,36 @@ class TestScanProgress:
         assert data["elapsed_time"] > 0.0
         assert "start_time" in data
         assert "estimated_completion" in data
+    
+    def test_update_estimated_completion_calculation(self):
+        """Test estimated completion calculation during update."""
+        progress = ScanProgress()
+        
+        # Set initial data
+        progress.update(processed_files=10, total_files=100)
+        
+        # Wait a bit to ensure elapsed time > 0
+        import time
+        time.sleep(0.1)
+        
+        # Update with more processed files
+        progress.update(processed_files=20)
+        
+        # Should have estimated completion
+        eta = progress.get_estimated_completion()
+        assert eta is not None
+        assert isinstance(eta, datetime)
+    
+    def test_update_estimated_completion_with_zero_elapsed(self):
+        """Test estimated completion with very small elapsed time."""
+        progress = ScanProgress()
+        
+        # Update immediately after creation (elapsed time ≈ 0)
+        progress.update(processed_files=10, total_files=100)
+        
+        # May or may not have estimated completion due to very small elapsed time
+        eta = progress.get_estimated_completion()
+        # Don't assert specific value as it depends on timing
 
 
 class TestDirectoryScanner:
@@ -354,6 +384,78 @@ class TestDirectoryScanner:
             await directory_scanner.scan_directory(str(test_dir))
     
     @pytest.mark.asyncio
+    async def test_scan_directory_with_progress_callback(self, directory_scanner, tmp_path):
+        """Test scanning with progress callback."""
+        # Create test directory structure
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        (test_dir / "file1.txt").write_text("content1")
+        
+        # Mock file filter to accept all files
+        directory_scanner.file_filter.filter_files.return_value = [
+            Mock(should_process=True)
+        ]
+        
+        # Mock metadata extraction
+        with patch.object(directory_scanner, '_extract_file_metadata') as mock_extract:
+            mock_file_info = Mock(spec=FileInfo)
+            mock_file_info.file_path = "test_path"
+            mock_file_info.file_name = "test_file.txt"
+            mock_file_info.file_extension = "txt"
+            mock_file_info.file_size = 1024
+            mock_file_info.is_directory = False
+            mock_extract.return_value = mock_file_info
+        
+        # Track progress calls
+        progress_calls = []
+        def progress_callback(progress):
+            progress_calls.append(progress)
+        
+        files = await directory_scanner.scan_directory(str(test_dir), progress_callback)
+        
+        assert len(files) == 1
+        assert len(progress_calls) > 0
+        assert all(isinstance(p, ScanProgress) for p in progress_calls)
+    
+    @pytest.mark.asyncio
+    async def test_scan_directory_timeout_error(self, directory_scanner, tmp_path):
+        """Test scanning with timeout error."""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        # Mock recursive scan to raise TimeoutError
+        with patch.object(directory_scanner, '_scan_directory_recursive', 
+                         side_effect=asyncio.TimeoutError()):
+            with pytest.raises(TimeoutError, match="Scan exceeded timeout"):
+                await directory_scanner.scan_directory(str(test_dir))
+    
+    @pytest.mark.asyncio
+    async def test_scan_directory_general_error(self, directory_scanner, tmp_path):
+        """Test scanning with general error."""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        # Mock recursive scan to raise general exception
+        with patch.object(directory_scanner, '_scan_directory_recursive', 
+                         side_effect=Exception("General error")):
+            with pytest.raises(Exception, match="General error"):
+                await directory_scanner.scan_directory(str(test_dir))
+    
+    @pytest.mark.asyncio
+    async def test_scan_directory_lock_removal_error(self, directory_scanner, tmp_path):
+        """Test scanning with lock removal error."""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        # Mock lock removal to fail
+        directory_scanner.lock_manager.remove_lock.side_effect = Exception("Remove lock error")
+        
+        # Should still complete successfully despite lock removal error
+        with patch.object(directory_scanner, '_scan_directory_recursive', return_value=[]):
+            files = await directory_scanner.scan_directory(str(test_dir))
+            assert files == []
+    
+    @pytest.mark.asyncio
     async def test_scan_directories_success(self, directory_scanner, tmp_path):
         """Test scanning multiple directories successfully."""
         # Create test directories
@@ -433,6 +535,43 @@ class TestDirectoryScanner:
         assert len(results[str(test_dir)]) == 1
     
     @pytest.mark.asyncio
+    async def test_scan_directories_with_exceptions(self, directory_scanner, tmp_path):
+        """Test scanning multiple directories with exceptions."""
+        # Create test directories
+        test_dir1 = tmp_path / "test_dir1"
+        test_dir1.mkdir()
+        test_dir2 = tmp_path / "test_dir2"
+        test_dir2.mkdir()
+        
+        # Mock scan_directory to raise exception for one directory
+        with patch.object(directory_scanner, 'scan_directory') as mock_scan:
+            mock_scan.side_effect = [Exception("Scan error"), []]
+            
+            results = await directory_scanner.scan_directories([
+                str(test_dir1), str(test_dir2)
+            ])
+            
+            # Both directories should be in results, but one failed
+            assert len(results) == 2
+            assert str(test_dir1) in results
+            assert str(test_dir2) in results
+            # The failed scan should result in empty list
+            assert results[str(test_dir1)] == []
+            assert results[str(test_dir2)] == []
+    
+    @pytest.mark.asyncio
+    async def test_scan_directories_general_error(self, directory_scanner, tmp_path):
+        """Test scanning multiple directories with general error."""
+        # Create test directory
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        # Mock asyncio.gather to raise exception
+        with patch('asyncio.gather', side_effect=Exception("General error")):
+            with pytest.raises(Exception, match="General error"):
+                await directory_scanner.scan_directories([str(test_dir)])
+    
+    @pytest.mark.asyncio
     async def test_extract_file_metadata_success(self, directory_scanner, tmp_path):
         """Test successful metadata extraction."""
         # Create test file
@@ -464,6 +603,32 @@ class TestDirectoryScanner:
         
         with pytest.raises(ValueError, match="Path is not a file"):
             await directory_scanner._extract_file_metadata(test_dir)
+    
+    @pytest.mark.asyncio
+    async def test_extract_file_metadata_permission_error(self, directory_scanner, tmp_path):
+        """Test metadata extraction with permission error."""
+        test_file = tmp_path / "test_file.txt"
+        test_file.write_text("content")
+        
+        # Mock exists and is_file to return True, then stat to raise PermissionError
+        with patch.object(Path, 'exists', return_value=True), \
+             patch.object(Path, 'is_file', return_value=True), \
+             patch.object(Path, 'stat', side_effect=PermissionError("Access denied")):
+            with pytest.raises(PermissionError, match="Permission denied accessing file"):
+                await directory_scanner._extract_file_metadata(test_file)
+    
+    @pytest.mark.asyncio
+    async def test_extract_file_metadata_general_error(self, directory_scanner, tmp_path):
+        """Test metadata extraction with general error."""
+        test_file = tmp_path / "test_file.txt"
+        test_file.write_text("content")
+        
+        # Mock exists and is_file to return True, then stat to raise general exception
+        with patch.object(Path, 'exists', return_value=True), \
+             patch.object(Path, 'is_file', return_value=True), \
+             patch.object(Path, 'stat', side_effect=Exception("General error")):
+            with pytest.raises(Exception, match="Error extracting metadata"):
+                await directory_scanner._extract_file_metadata(test_file)
     
     @pytest.mark.asyncio
     async def test_filter_files_success(self, directory_scanner):
@@ -503,6 +668,28 @@ class TestDirectoryScanner:
         
         with pytest.raises(ValueError, match="file_infos must be list"):
             await directory_scanner._filter_files("not_a_list", progress)
+    
+    @pytest.mark.asyncio
+    async def test_filter_files_with_batch_progress(self, directory_scanner):
+        """Test filtering with batch progress updates."""
+        # Create test file infos (more than batch_size)
+        file_infos = [
+            Mock(spec=FileInfo, file_path=f"/test/file{i}.txt")
+            for i in range(25)  # More than batch_size of 10
+        ]
+        
+        # Mock file filter results
+        directory_scanner.file_filter.filter_files.return_value = [
+            Mock(should_process=True) for _ in range(25)
+        ]
+        
+        progress = Mock()
+        
+        filtered_files = await directory_scanner._filter_files(file_infos, progress)
+        
+        assert len(filtered_files) == 25
+        # Should have called progress.update multiple times due to batch processing
+        assert progress.update.call_count > 1
     
     def test_get_scan_statistics(self, directory_scanner):
         """Test getting scan statistics."""
@@ -595,4 +782,83 @@ class TestDirectoryScanner:
             "/nonexistent/directory", 0, progress
         )
         
-        assert files == [] 
+        assert files == []
+    
+    @pytest.mark.asyncio
+    async def test_scan_directory_recursive_not_directory(self, directory_scanner, tmp_path):
+        """Test recursive scanning handles path that is not a directory."""
+        # Create a file
+        test_file = tmp_path / "test_file.txt"
+        test_file.write_text("content")
+        
+        progress = Mock()
+        
+        files = await directory_scanner._scan_directory_recursive(
+            str(test_file), 0, progress
+        )
+        
+        assert files == []
+    
+    @pytest.mark.asyncio
+    async def test_scan_directory_recursive_metadata_extraction_error(self, directory_scanner, tmp_path):
+        """Test recursive scanning handles metadata extraction errors."""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        (test_dir / "file1.txt").write_text("content1")
+        
+        # Mock metadata extraction to fail
+        with patch.object(directory_scanner, '_extract_file_metadata', 
+                         side_effect=Exception("Metadata error")):
+            progress = Mock()
+            
+            files = await directory_scanner._scan_directory_recursive(
+                str(test_dir), 0, progress
+            )
+            
+            assert files == []
+    
+    @pytest.mark.asyncio
+    async def test_scan_directory_recursive_general_error(self, directory_scanner, tmp_path):
+        """Test recursive scanning handles general errors."""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        # Mock iterdir to raise general exception
+        with patch.object(Path, 'iterdir', side_effect=Exception("General error")):
+            progress = Mock()
+            
+            files = await directory_scanner._scan_directory_recursive(
+                str(test_dir), 0, progress
+            )
+            
+            assert files == []
+    
+    @pytest.mark.asyncio
+    async def test_scan_directory_recursive_with_subdirectories(self, directory_scanner, tmp_path):
+        """Test recursive scanning with subdirectories."""
+        # Create directory structure with subdirectories
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        (test_dir / "file1.txt").write_text("content1")
+        
+        subdir = test_dir / "subdir"
+        subdir.mkdir()
+        (subdir / "file2.md").write_text("content2")
+        
+        progress = Mock()
+        
+        # Mock metadata extraction
+        with patch.object(directory_scanner, '_extract_file_metadata') as mock_extract:
+            mock_file_info = Mock(spec=FileInfo)
+            mock_file_info.file_path = "test_path"
+            mock_file_info.file_name = "test_file.txt"
+            mock_file_info.file_extension = "txt"
+            mock_file_info.file_size = 1024
+            mock_file_info.is_directory = False
+            mock_extract.return_value = mock_file_info
+        
+        files = await directory_scanner._scan_directory_recursive(
+            str(test_dir), 0, progress
+        )
+        
+        assert len(files) == 2  # One file from root, one from subdir 

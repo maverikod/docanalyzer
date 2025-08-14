@@ -142,10 +142,19 @@ class LockManager:
                 else:
                     logger.warning(f"Removing orphaned lock for directory: {directory}")
                     await self._remove_lock_file(lock_path)
-            except (FileNotFoundError, LockError):
+            except FileNotFoundError:
                 # Lock file is corrupted, remove it
                 logger.warning(f"Removing corrupted lock file: {lock_path}")
                 await self._remove_lock_file(lock_path)
+            except LockError as e:
+                # Check if this is a LockError from active process or corrupted file
+                if "Directory already locked by process" in str(e):
+                    # Re-raise LockError for active processes
+                    raise
+                else:
+                    # LockError from corrupted file, remove it
+                    logger.warning(f"Removing corrupted lock file: {lock_path}")
+                    await self._remove_lock_file(lock_path)
         
         # Create new lock
         lock_data = LockFile(
@@ -425,4 +434,45 @@ class LockManager:
         if not isinstance(lock_data["lock_file_path"], str) or not lock_data["lock_file_path"]:
             return False
         
-        return True 
+        return True
+    
+    async def remove_lock_by_directory(self, directory: str) -> bool:
+        """
+        Remove lock file by directory path.
+        
+        Finds and removes the lock file for the specified directory.
+        
+        Args:
+            directory (str): Directory path to remove lock for.
+                Must be existing directory path.
+        
+        Returns:
+            bool: True if lock was removed, False otherwise.
+        
+        Raises:
+            FileNotFoundError: If directory doesn't exist
+            PermissionError: If cannot remove lock file
+        """
+        if not os.path.exists(directory):
+            raise FileNotFoundError(f"Directory not found: {directory}")
+        
+        lock_path = Path(directory) / self.lock_file_name
+        
+        if not lock_path.exists():
+            logger.warning(f"No lock file found for directory: {directory}")
+            return False
+        
+        try:
+            # Read lock data to validate ownership
+            lock_data = await self._read_lock_file(lock_path)
+            
+            # Check if lock is owned by current process or is orphaned
+            if lock_data.process_id == os.getpid() or not await self._is_process_alive(lock_data.process_id):
+                return await self._remove_lock_file(lock_path)
+            else:
+                logger.warning(f"Lock file for {directory} is owned by different process {lock_data.process_id}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error removing lock for directory {directory}: {e}")
+            return False 

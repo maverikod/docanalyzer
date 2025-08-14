@@ -12,13 +12,16 @@ Version: 1.0.0
 from .file_system import FileInfo, Directory, LockFile
 
 # Processing Models
-from .processing import ProcessingStatus, ProcessingBlock, FileProcessingResult
+from .processing import ProcessingStatus, ProcessingBlock, FileProcessingResult, ProcessingResult
 
 # Database Models
 from .database import RecordStatus, DatabaseFileRecord, ProcessingStatistics
 
 # Error Models
 from .errors import ErrorSeverity, ErrorCategory, ProcessingError, ErrorHandler
+
+# Semantic Chunk Models
+from .semantic_chunk import ChunkStatus, SemanticChunk
 
 __all__ = [
     # File System Models
@@ -30,6 +33,7 @@ __all__ = [
     "ProcessingStatus",
     "ProcessingBlock",
     "FileProcessingResult",
+    "ProcessingResult",
     
     # Database Models
     "RecordStatus",
@@ -41,4 +45,8 @@ __all__ = [
     "ErrorCategory",
     "ProcessingError",
     "ErrorHandler",
+    
+    # Semantic Chunk Models
+    "ChunkStatus",
+    "SemanticChunk",
 ] 

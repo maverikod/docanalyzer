@@ -1,0 +1,38 @@
+# Integration Tests Dependencies
+# Required packages for running integration tests with real services
+
+# HTTP client for real service testing
+aiohttp>=3.8.0
+aiofiles>=23.0.0
+
+# System monitoring for performance tests
+psutil>=5.9.0
+
+# Async testing support
+pytest-asyncio>=0.21.0
+pytest-timeout>=2.1.0
+
+# JSON handling
+ujson>=5.7.0
+
+# Network utilities
+requests>=2.28.0
+
+# Database testing
+aiosqlite>=0.17.0
+
+# Performance testing
+pytest-benchmark>=4.0.0
+
+# Coverage for integration tests
+pytest-cov>=4.0.0
+
+# Mocking for partial integration tests
+pytest-mock>=3.10.0
+
+# Fixture management
+pytest-xdist>=3.0.0
+
+# Test reporting
+pytest-html>=3.1.0
+pytest-json-report>=1.5.0 

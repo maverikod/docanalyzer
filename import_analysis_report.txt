@@ -1,0 +1,796 @@
+================================================================================
+IMPORT ANALYSIS REPORT
+================================================================================
+
+Total files analyzed: 133
+Files with errors: 0
+Files with unused imports: 114
+
+FILES WITH UNUSED IMPORTS:
+----------------------------------------
+  test_unified_file_direct.py:
+    - os.os
+    - tempfile.tempfile
+    - unittest.mock.mock
+
+  clean_imports.py:
+    - typing.Tuple
+
+  test_unified_config_direct.py:
+    - os.os
+
+  docanalyzer/main.py:
+    - asyncio.asyncio
+    - mcp_proxy_adapter.core.settings.get_custom_setting_value
+
+  docanalyzer/__init__.py:
+    - docanalyzer._version.version
+    - docanalyzer._version._version
+    - docanalyzer._version.version_tuple
+    - docanalyzer._version.__commit_id__
+    - docanalyzer._version.commit_id
+    - docanalyzer._version.__version__
+    - docanalyzer._version.__version_tuple__
+    - docanalyzer.logging.logging
+    - docanalyzer.monitoring.monitoring
+    - docanalyzer.adapters.adapters
+
+  docanalyzer/config/extensions.py:
+    - typing.Optional
+
+  docanalyzer/config/integration.py:
+    - typing.Optional
+    - pathlib.Path
+
+  docanalyzer/config/__init__.py:
+    - integration.DocAnalyzerConfig
+    - extensions.get_file_watcher_settings
+    - extensions.get_vector_store_settings
+    - extensions.get_embedding_settings
+    - extensions.get_chunker_settings
+    - validation.validate_docanalyzer_config
+    - unified_config.FileWatcherConfig
+    - unified_config.VectorStoreConfig
+    - unified_config.reload_unified_config
+    - unified_config.ChunkerConfig
+    - unified_config.get_unified_config
+    - unified_config.EmbeddingConfig
+    - unified_config.ValidationError
+    - unified_config.ServerConfig
+    - unified_config.UnifiedConfig
+    - unified_config.LoggingConfig
+    - unified_config.CommandsConfig
+    - unified_config.ConfigError
+
+  docanalyzer/config/unified_config.py:
+    - typing.Union
+    - pathlib.Path
+    - mcp_proxy_adapter.core.settings.get_setting
+
+  docanalyzer/workers/directory_scanner_worker.py:
+    - multiprocessing.multiprocessing
+    - typing.Union
+    - pathlib.Path
+    - json.json
+    - docanalyzer.models.file_system.Directory
+
+  docanalyzer/workers/__init__.py:
+    - directory_scanner_worker.WorkerConfig
+    - directory_scanner_worker.WorkerStatus
+    - directory_scanner_worker.DirectoryScannerWorker
+
+  docanalyzer/utils/file_utils.py:
+    - stat.stat
+    - typing.Optional
+
+  docanalyzer/utils/__init__.py:
+    - file_utils.is_directory
+    - file_utils.get_file_size
+    - file_utils.normalize_path
+    - file_utils.is_writable
+    - file_utils.is_readable
+    - file_utils.get_file_metadata
+    - file_utils.is_file
+    - file_utils.safe_create_directory
+    - file_utils.safe_remove_file
+    - file_utils.ensure_directory_exists
+    - file_utils.get_file_modified_time
+
+  docanalyzer/models/performance.py:
+    - time.time
+    - typing.Union
+
+  docanalyzer/models/semantic_chunk.py:
+    - typing.List
+
+  docanalyzer/models/unified_errors.py:
+    - typing.Union
+    - typing.List
+
+  docanalyzer/models/health.py:
+    - typing.Optional
+
+  docanalyzer/models/processing.py:
+    - typing.Union
+    - json.json
+
+  docanalyzer/models/__init__.py:
+    - file_system.LockFile
+    - file_system.Directory
+    - file_system.FileInfo
+    - processing.ProcessingResult
+    - processing.FileProcessingResult
+    - processing.ProcessingStatus
+    - processing.ProcessingBlock
+    - database.RecordStatus
+    - database.DatabaseFileRecord
+    - database.ProcessingStatistics
+    - errors.ErrorHandler
+    - errors.ErrorSeverity
+    - errors.ProcessingError
+    - errors.ErrorCategory
+    - semantic_chunk.SemanticChunk
+    - semantic_chunk.ChunkStatus
+
+  docanalyzer/models/errors.py:
+    - typing.Union
+    - json.json
+
+  docanalyzer/models/database.py:
+    - typing.Union
+    - json.json
+
+  docanalyzer/filters/file_filter.py:
+    - typing.Union
+
+  docanalyzer/filters/__init__.py:
+    - file_filter.SupportedFileTypes
+    - file_filter.FileFilter
+    - file_filter.FileFilterResult
+
+  docanalyzer/services/lock_manager.py:
+    - asyncio.asyncio
+
+  docanalyzer/services/performance_optimizer.py:
+    - typing.Tuple
+    - docanalyzer.config.DocAnalyzerConfig
+
+  docanalyzer/services/directory_orchestrator.py:
+    - typing.Union
+    - pathlib.Path
+    - json.json
+    - docanalyzer.models.file_system.Directory
+
+  docanalyzer/services/chunking_manager.py:
+    - asyncio.asyncio
+    - uuid.uuid
+    - typing.Optional
+    - docanalyzer.models.semantic_chunk.METADATA_KEYS
+    - docanalyzer.models.database.DatabaseFileRecord
+
+  docanalyzer/services/main_process_manager.py:
+    - signal.signal
+    - typing.Set
+    - datetime.timedelta
+    - docanalyzer.models.file_system.Directory
+    - docanalyzer.services.file_processor.FileProcessor
+    - docanalyzer.services.chunking_manager.ChunkingManager
+
+  docanalyzer/services/vector_store_wrapper.py:
+    - asyncio.asyncio
+    - typing.Union
+    - uuid.uuid
+    - docanalyzer.models.database.RecordStatus
+
+  docanalyzer/services/directory_scanner.py:
+    - typing.Set
+    - docanalyzer.models.file_system.Directory
+    - docanalyzer.filters.file_filter.FileFilterResult
+
+  docanalyzer/services/file_processor.py:
+    - typing.Union
+    - typing.Optional
+
+  docanalyzer/services/__init__.py:
+    - lock_manager.LockManager
+    - directory_scanner.DirectoryScanner
+    - vector_store_wrapper.VectorStoreWrapper
+    - database_manager.DatabaseManager
+    - database_manager.FileRepository
+    - file_processor.FileProcessor
+    - chunking_manager.ChunkingManager
+    - main_process_manager.MainProcessManager
+    - child_process_manager.ChildProcessConfig
+    - child_process_manager.ChildProcessManager
+    - process_communication.ProcessCommunication
+    - process_communication.ProcessCommunicationConfig
+    - directory_orchestrator.OrchestratorConfig
+    - directory_orchestrator.DirectoryProcessingStatus
+    - directory_orchestrator.OrchestrationResult
+    - directory_orchestrator.DirectoryOrchestrator
+    - error_handler.ErrorHandlerConfig
+    - error_handler.ErrorInfo
+    - error_handler.ErrorRecoveryStrategy
+    - error_handler.ErrorHandler
+
+  docanalyzer/services/process_communication.py:
+    - json.json
+    - signal.signal
+    - sys.sys
+    - typing.Union
+    - typing.List
+    - pathlib.Path
+    - threading.threading
+    - time.time
+    - docanalyzer.models.file_system.Directory
+    - docanalyzer.models.file_system.FileInfo
+    - docanalyzer.models.errors.ProcessingError
+
+  docanalyzer/services/database_manager.py:
+    - asyncio.asyncio
+    - typing.Union
+    - typing.Set
+    - uuid.uuid
+    - json.json
+    - pathlib.Path
+    - docanalyzer.models.database.DatabaseHealth
+    - docanalyzer.models.processing.FileProcessingResult
+    - docanalyzer.models.processing.ProcessingBlock
+
+  docanalyzer/services/child_process_manager.py:
+    - signal.signal
+    - typing.Union
+    - pathlib.Path
+    - json.json
+    - docanalyzer.models.file_system.Directory
+    - docanalyzer.models.file_system.FileInfo
+    - docanalyzer.models.errors.ProcessManagementError
+    - docanalyzer.models.errors.ProcessingError
+
+  docanalyzer/services/error_handler.py:
+    - typing.Union
+    - typing.Type
+    - datetime.timedelta
+    - json.json
+
+  docanalyzer/cache/processing_cache.py:
+    - hashlib.hashlib
+    - json.json
+    - typing.Union
+    - docanalyzer.models.file_system.FileInfo
+    - docanalyzer.models.processing.FileProcessingResult
+    - docanalyzer.models.processing.ProcessingBlock
+
+  docanalyzer/adapters/__init__.py:
+    - vector_store_adapter.VectorStoreAdapter
+
+  docanalyzer/adapters/vector_store_adapter.py:
+    - asyncio.asyncio
+    - typing.Union
+    - vector_store_client.SearchResult
+    - vector_store_client.ServerError
+    - vector_store_client.types.ChunkType
+    - vector_store_client.types.SearchOrder
+    - vector_store_client.types.LanguageEnum
+    - docanalyzer.models.database.RecordStatus
+    - docanalyzer.models.database.DatabaseFileRecord
+    - docanalyzer.models.semantic_chunk.METADATA_KEYS
+
+  docanalyzer/monitoring/metrics.py:
+    - typing.List
+    - datetime.timedelta
+    - collections.defaultdict
+    - collections.Counter
+
+  docanalyzer/monitoring/health.py:
+    - typing.Union
+    - typing.List
+    - datetime.timedelta
+
+  docanalyzer/monitoring/__init__.py:
+    - metrics.MetricsCollector
+    - metrics.SystemMetrics
+    - metrics.ProcessingMetrics
+    - health.HealthChecker
+    - health.HealthStatus
+    - health.ComponentHealth
+
+  docanalyzer/logging/integration.py:
+    - typing.List
+    - datetime.datetime
+
+  docanalyzer/logging/__init__.py:
+    - integration.DocAnalyzerLogger
+    - integration.LoggingConfig
+
+  docanalyzer/processors/markdown_processor.py:
+    - typing.Tuple
+    - pathlib.Path
+    - datetime.datetime
+    - docanalyzer.models.processing.ProcessingStatus
+
+  docanalyzer/processors/__init__.py:
+    - base_processor.BaseProcessor
+    - base_processor.ProcessorResult
+    - text_processor.TextProcessor
+    - markdown_processor.MarkdownProcessor
+
+  docanalyzer/processors/text_processor.py:
+    - typing.Any
+    - typing.Dict
+    - typing.Iterator
+    - pathlib.Path
+    - datetime.datetime
+    - docanalyzer.models.processing.ProcessingStatus
+
+  docanalyzer/processors/base_processor.py:
+    - typing.Union
+
+  docanalyzer/commands/__init__.py:
+    - auto_commands.ProcessingStatsCommand
+    - auto_commands.SystemStatsCommand
+    - auto_commands.QueueStatusCommand
+    - auto_commands.QueueStatusResult
+    - auto_commands.HealthCheckResult
+    - auto_commands.ProcessingStatsResult
+    - auto_commands.SystemStatsResult
+    - auto_commands.HealthCheckCommand
+
+  docanalyzer/models/file_system/__init__.py:
+    - file_info.FileInfo
+    - directory.Directory
+    - lock_file.LockFile
+
+  docanalyzer/commands/auto_commands/health_check_command.py:
+    - docanalyzer.services.LockManager
+    - docanalyzer.services.DirectoryScanner
+    - docanalyzer.processors.BaseProcessor
+    - docanalyzer.processors.TextProcessor
+    - docanalyzer.processors.MarkdownProcessor
+
+  docanalyzer/commands/auto_commands/processing_stats_command.py:
+    - os.os
+    - typing.List
+    - docanalyzer.services.LockManager
+    - docanalyzer.services.DirectoryScanner
+    - docanalyzer.processors.BaseProcessor
+    - docanalyzer.processors.TextProcessor
+    - docanalyzer.processors.MarkdownProcessor
+
+  docanalyzer/commands/auto_commands/system_stats_command.py:
+    - typing.List
+
+  docanalyzer/commands/auto_commands/queue_status_command.py:
+    - os.os
+    - typing.Optional
+    - docanalyzer.services.LockManager
+    - docanalyzer.services.DirectoryScanner
+
+  docanalyzer/commands/auto_commands/__init__.py:
+    - health_check_command.HealthCheckResult
+    - health_check_command.HealthCheckCommand
+    - system_stats_command.SystemStatsResult
+    - system_stats_command.SystemStatsCommand
+    - processing_stats_command.ProcessingStatsCommand
+    - processing_stats_command.ProcessingStatsResult
+    - queue_status_command.QueueStatusCommand
+    - queue_status_command.QueueStatusResult
+
+  tests/integration/conftest.py:
+    - os.os
+    - typing.Optional
+    - unittest.mock.AsyncMock
+    - unittest.mock.patch
+    - docanalyzer.filters.file_filter.FileFilter
+    - threading.threading
+
+  tests/integration/test_load_testing.py:
+    - os.os
+    - typing.Dict
+    - typing.Optional
+    - typing.Any
+    - unittest.mock.AsyncMock
+    - unittest.mock.patch
+
+  tests/integration/test_error_handling.py:
+    - os.os
+    - typing.Dict
+    - typing.Optional
+    - typing.List
+    - typing.Any
+    - unittest.mock.AsyncMock
+    - unittest.mock.patch
+    - docanalyzer.models.errors.ProcessingError
+
+  tests/integration/run_integration_tests.py:
+    - os.os
+    - time.time
+    - typing.List
+    - pytest.pytest
+
+  tests/integration/test_full_pipeline.py:
+    - os.os
+    - typing.Dict
+    - typing.Optional
+    - typing.Any
+    - unittest.mock.AsyncMock
+    - unittest.mock.patch
+    - docanalyzer.models.file_system.Directory
+    - docanalyzer.models.file_system.FileInfo
+    - docanalyzer.models.processing.FileProcessingResult
+    - docanalyzer.models.processing.ProcessingBlock
+
+  tests/integration/test_concurrent_processing.py:
+    - os.os
+    - typing.Dict
+    - typing.Optional
+    - typing.List
+    - typing.Any
+    - unittest.mock.AsyncMock
+    - unittest.mock.patch
+    - concurrent.futures.ThreadPoolExecutor
+    - concurrent.futures.as_completed
+    - docanalyzer.services.DirectoryOrchestrator
+    - docanalyzer.services.directory_orchestrator.OrchestratorConfig
+
+  tests/integration/test_real_services_integration.py:
+    - asyncio.asyncio
+    - os.os
+    - typing.Optional
+    - typing.List
+    - typing.Any
+
+  tests/integration/test_real_mcp_integration.py:
+    - asyncio.asyncio
+    - json.json
+    - typing.Optional
+    - unittest.mock.patch
+    - unittest.mock.Mock
+
+  tests/unit/test_lock_manager.py:
+    - asyncio.asyncio
+    - tempfile.tempfile
+    - shutil.shutil
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+
+  tests/unit/test_errors.py:
+    - unittest.mock.patch
+
+  tests/unit/test_database.py:
+    - unittest.mock.patch
+    - unittest.mock.Mock
+
+  tests/unit/test_processing_cache.py:
+    - unittest.mock.AsyncMock
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+    - datetime.timedelta
+    - datetime.datetime
+    - docanalyzer.models.processing.FileProcessingResult
+
+  tests/unit/test_main.py:
+    - pytest.pytest
+    - sys.sys
+    - unittest.mock.MagicMock
+    - pathlib.Path
+
+  tests/unit/test_directory_scanner.py:
+    - asyncio.asyncio
+    - unittest.mock.MagicMock
+    - datetime.timedelta
+
+  tests/unit/test_version_extended.py:
+    - pytest.pytest
+    - unittest.mock.mock_open
+    - unittest.mock.patch
+    - unittest.mock.Mock
+    - os.os
+    - sys.sys
+
+  tests/unit/test_version.py:
+    - pytest.pytest
+    - unittest.mock.patch
+    - unittest.mock.Mock
+    - docanalyzer._version._version
+
+  tests/unit/test_services_init.py:
+    - pytest.pytest
+    - unittest.mock.patch
+    - unittest.mock.Mock
+    - docanalyzer.services.services
+
+  tests/unit/test_file_utils.py:
+    - os.os
+    - tempfile.tempfile
+    - shutil.shutil
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+
+  tests/unit/test_text_processor.py:
+    - unittest.mock.mock_open
+    - unittest.mock.Mock
+    - pathlib.Path
+    - datetime.datetime
+    - docanalyzer.processors.base_processor.ProcessorResult
+
+  tests/unit/test_init.py:
+    - unittest.mock.Mock
+
+  tests/unit/test_performance_optimizer.py:
+    - unittest.mock.AsyncMock
+    - unittest.mock.MagicMock
+    - datetime.timedelta
+    - datetime.datetime
+    - psutil.psutil
+
+  tests/unit/test_config/test_unified_config.py:
+    - unittest.mock.MagicMock
+    - typing.Dict
+    - typing.Any
+
+  tests/unit/test_config/test_unified_config_simple.py:
+    - pytest.pytest
+    - unittest.mock.patch
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+    - typing.Dict
+    - typing.Any
+
+  tests/unit/test_config/test_integration.py:
+    - unittest.mock.MagicMock
+    - typing.Dict
+    - typing.Any
+
+  tests/unit/test_config/test_validation.py:
+    - re.re
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - docanalyzer.config.extensions.get_file_watcher_settings
+    - docanalyzer.config.extensions.get_vector_store_settings
+    - docanalyzer.config.extensions.get_embedding_settings
+    - docanalyzer.config.extensions.get_chunker_settings
+
+  tests/unit/test_config/test_validation_extended.py:
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+    - pathlib.Path
+    - tempfile.tempfile
+    - os.os
+
+  tests/unit/test_config/test_extensions.py:
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+    - typing.Dict
+    - typing.Any
+
+  tests/unit/test_commands/test_health_check_command.py:
+    - asyncio.asyncio
+    - unittest.mock.AsyncMock
+    - unittest.mock.Mock
+    - datetime.datetime
+
+  tests/unit/test_commands/test_system_stats_command.py:
+    - asyncio.asyncio
+    - unittest.mock.AsyncMock
+    - datetime.datetime
+
+  tests/unit/test_commands/test_queue_status_command.py:
+    - asyncio.asyncio
+    - unittest.mock.AsyncMock
+    - datetime.datetime
+
+  tests/unit/test_commands/test_processing_stats_command.py:
+    - asyncio.asyncio
+    - unittest.mock.AsyncMock
+    - datetime.timedelta
+    - datetime.datetime
+
+  tests/unit/test_workers/test_directory_scanner_worker.py:
+    - asyncio.asyncio
+    - unittest.mock.Mock
+    - os.os
+    - docanalyzer.models.errors.ErrorCategory
+
+  tests/unit/test_adapters/test_vector_store_adapter.py:
+    - asyncio.asyncio
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - docanalyzer.models.errors.ConnectionError
+    - docanalyzer.models.errors.ProcessingError
+    - docanalyzer.models.errors.ValidationError
+
+  tests/unit/test_adapters/test_vector_store_adapter_extended.py:
+    - datetime.datetime
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - docanalyzer.models.semantic_chunk.SemanticChunk
+    - docanalyzer.models.semantic_chunk.ChunkStatus
+    - docanalyzer.models.errors.ConnectionError
+    - docanalyzer.models.errors.ErrorCategory
+    - docanalyzer.models.errors.ValidationError
+
+  tests/unit/test_services/test_chunking_manager.py:
+    - asyncio.asyncio
+    - typing.Dict
+    - typing.List
+    - typing.Any
+
+  tests/unit/test_services/test_vector_store_wrapper.py:
+    - asyncio.asyncio
+    - unittest.mock.AsyncMock
+    - typing.Dict
+    - typing.List
+    - typing.Any
+
+  tests/unit/test_services/test_database_manager.py:
+    - asyncio.asyncio
+    - pathlib.Path
+    - unittest.mock.MagicMock
+    - datetime.timedelta
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - uuid.uuid
+    - docanalyzer.services.database_manager.DatabaseManager
+    - docanalyzer.models.database.DatabaseFileRecord
+    - docanalyzer.models.database.DatabaseMetadata
+    - docanalyzer.models.database.ProcessingStatistics
+    - docanalyzer.models.errors.ProcessingError
+    - docanalyzer.config.integration.DocAnalyzerConfig
+    - docanalyzer.monitoring.health.HealthChecker
+    - docanalyzer.models.health.HealthStatus
+
+  tests/unit/test_services/test_main_process_manager.py:
+    - multiprocessing.multiprocessing
+    - os.os
+    - unittest.mock.MagicMock
+    - typing.Dict
+    - typing.Any
+
+  tests/unit/test_services/test_error_handler.py:
+    - asyncio.asyncio
+    - unittest.mock.AsyncMock
+    - unittest.mock.Mock
+    - uuid.uuid
+    - typing.Dict
+    - typing.List
+    - typing.Any
+
+  tests/unit/test_services/test_database_manager_extended.py:
+    - asyncio.asyncio
+    - pathlib.Path
+    - unittest.mock.MagicMock
+    - typing.Dict
+    - typing.Any
+    - docanalyzer.models.database.DatabaseFileRecord
+    - docanalyzer.models.database.DatabaseMetadata
+    - docanalyzer.config.integration.DocAnalyzerConfig
+
+  tests/unit/test_services/test_directory_scanner.py:
+    - unittest.mock.MagicMock
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - datetime.timedelta
+
+  tests/unit/test_services/test_file_processor.py:
+    - asyncio.asyncio
+    - unittest.mock.MagicMock
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - docanalyzer.models.processing.FileProcessingResult
+    - docanalyzer.models.errors.ProcessingError
+
+  tests/unit/test_services/test_database_manager_fixed.py:
+    - unittest.mock.MagicMock
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - docanalyzer.models.database.DatabaseFileRecord
+    - docanalyzer.models.database.DatabaseMetadata
+
+  tests/unit/test_services/test_directory_orchestrator.py:
+    - asyncio.asyncio
+    - unittest.mock.AsyncMock
+    - unittest.mock.Mock
+    - os.os
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - docanalyzer.models.errors.ErrorCategory
+
+  tests/unit/test_services/test_child_process_manager.py:
+    - unittest.mock.MagicMock
+    - os.os
+    - sys.sys
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - docanalyzer.models.errors.ProcessManagementError
+    - docanalyzer.models.errors.ResourceLimitError
+    - docanalyzer.models.processing.ProcessingResult
+
+  tests/unit/test_services/test_process_communication.py:
+    - unittest.mock.AsyncMock
+    - unittest.mock.Mock
+
+  tests/unit/test_processors/test_markdown_processor.py:
+    - tempfile.tempfile
+    - os.os
+    - pathlib.Path
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+    - docanalyzer.models.processing.ProcessingStatus
+    - docanalyzer.models.processing.ProcessingBlock
+
+  tests/unit/test_processors/test_base_processor.py:
+    - tempfile.tempfile
+    - os.os
+    - pathlib.Path
+    - unittest.mock.patch
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+
+  tests/unit/test_processors/test_text_processor.py:
+    - tempfile.tempfile
+    - os.os
+    - pathlib.Path
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+    - docanalyzer.models.processing.ProcessingStatus
+
+  tests/unit/test_filters/test_file_filter.py:
+    - unittest.mock.patch
+    - typing.Dict
+    - typing.List
+    - typing.Any
+    - datetime.datetime
+
+  tests/unit/test_logging/test_integration.py:
+    - pathlib.Path
+    - unittest.mock.MagicMock
+    - unittest.mock.Mock
+
+  tests/unit/test_models/test_database_extended.py:
+    - typing.Dict
+    - typing.Any
+    - docanalyzer.models.database.RecordStatus
+
+  tests/unit/test_models/test_file_system.py:
+    - pathlib.Path
+    - unittest.mock.patch
+    - unittest.mock.Mock
+
+  tests/unit/test_models/test_errors.py:
+    - datetime.timedelta
+    - unittest.mock.patch
+
+  tests/unit/test_models/test_database.py:
+    - unittest.mock.patch
+    - unittest.mock.Mock
+
+  tests/unit/test_models/test_processing.py:
+    - datetime.timedelta
+    - unittest.mock.patch
+    - unittest.mock.Mock
+
+  tests/unit/test_models/test_file_system_extended.py:
+    - unittest.mock.patch
+    - unittest.mock.Mock
+
+  tests/unit/test_monitoring/test_health.py:
+    - unittest.mock.MagicMock
+
+  tests/unit/test_monitoring/test_metrics.py:
+    - unittest.mock.MagicMock
+
+SUMMARY:
+----------------------------------------
+Total unused imports found: 555

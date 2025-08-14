@@ -11,6 +11,7 @@
     "log_file": "docanalyzer.log",
     "error_log_file": "docanalyzer_error.log",
     "access_log_file": "docanalyzer_access.log",
+    "file_processing_log": "file_processing.log",
     "max_file_size": "10MB",
     "backup_count": 5,
     "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
